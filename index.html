@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Interactive thesis presentation about S.H.I.T. Journal and online academic parody." />
+    <title>S.H.*.T Journal | Thesis Presentation</title>
+    <style>
+      :root { --paper:#f6f5f1; --ink:#17171a; --soft:#8e95a2; --line:#dadddf; --red:#e6323e; --blue:#4194d5; --gold:#c9a12c; --panel:#202126; }
+      * { box-sizing:border-box; }
+      html, body { min-height:100%; }
+      body { margin:0; background:#dededb; color:var(--ink); font-family:Arial, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif; overflow:hidden; }
+      button { font:inherit; }
+      button:focus-visible { outline:3px solid var(--red); outline-offset:3px; }
+      .app { min-height:100dvh; display:grid; place-items:center; padding:clamp(12px,2vw,30px); }
+      .deck { width:min(100%,1440px); aspect-ratio:16/9; max-height:calc(100dvh - clamp(24px,4vw,60px)); overflow:hidden; position:relative; background:var(--paper); box-shadow:0 18px 50px rgba(23,23,26,.24); }
+      .slide { position:absolute; inset:0; padding:clamp(28px,4vw,66px); opacity:0; pointer-events:none; transform:translate3d(2.5%,0,0); transition:opacity .42s ease, transform .55s cubic-bezier(.16,1,.3,1); display:grid; grid-template-rows:auto 1fr auto; gap:clamp(18px,2.2vw,34px); }
+      .slide.active { opacity:1; pointer-events:auto; transform:translate3d(0,0,0); }
+      .slide.exit { transform:translate3d(-2.5%,0,0); }
+      .slide-header { min-height:28px; display:flex; justify-content:space-between; align-items:start; border-bottom:1px solid var(--line); padding-bottom:11px; }
+      .masthead { font-family:Georgia, "Songti SC", serif; font-size:clamp(21px,2vw,31px); font-weight:700; letter-spacing:-.09em; line-height:.75; }
+      .masthead small { display:inline-block; margin-left:9px; font:700 clamp(7px,.58vw,10px)/1.05 Arial,sans-serif; letter-spacing:.03em; text-transform:uppercase; vertical-align:middle; }
+      .folio, .eyebrow, .smallcaps { font:700 clamp(9px,.7vw,12px)/1 Arial,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
+      .folio { color:var(--soft); }
+      .eyebrow { color:var(--red); }
+      h1, h2, h3, p { margin:0; }
+      h1, h2 { letter-spacing:-.07em; line-height:.88; }
+      h1 { font-size:clamp(52px,7vw,114px); font-weight:900; max-width:9ch; }
+      h2 { font-size:clamp(40px,5.2vw,82px); font-weight:900; max-width:11ch; }
+      h3 { font-family:Georgia, "Songti SC", serif; font-size:clamp(24px,2.8vw,44px); line-height:.98; letter-spacing:-.05em; }
+      .lead { font-size:clamp(14px,1.25vw,20px); line-height:1.42; max-width:45ch; color:#454954; }
+      .serif { font-family:Georgia, "Songti SC", serif; }
+      .rule-title { font-family:Georgia, "Songti SC", serif; font-size:clamp(20px,2.2vw,35px); font-weight:700; border-bottom:5px solid var(--ink); padding-bottom:9px; display:flex; justify-content:space-between; align-items:end; }
+      .rule-title small { color:var(--soft); font:700 10px/1 Arial,sans-serif; letter-spacing:.1em; }
+      .tag { display:inline-flex; align-items:center; min-height:26px; padding:0 9px; border:1px solid currentColor; color:var(--red); font:700 clamp(9px,.73vw,12px)/1 Arial,sans-serif; letter-spacing:.055em; text-transform:uppercase; white-space:nowrap; }
+      .tag.blue { color:#245ddd; background:#eef4ff; border-color:#bcd2ff; }.tag.gold { color:#a88219; border-color:#c5a02f; }.tag.ink { color:var(--ink); }
+      .rating { color:var(--blue); font:700 clamp(14px,1.4vw,22px)/1 Arial,sans-serif; letter-spacing:.08em; white-space:nowrap; }
+      .rating small { color:var(--soft); font:400 clamp(10px,.8vw,14px)/1 Arial,sans-serif; letter-spacing:0; }
+
+      .cover { grid-template-rows:auto 1fr auto; }
+      .cover-main { display:grid; grid-template-columns:1.1fr .9fr; align-items:center; gap:clamp(28px,6vw,100px); }
+      .cover-copy { display:grid; gap:24px; align-content:center; }
+      .cover-title em { color:var(--red); font-style:normal; }
+      .cover-card { justify-self:end; width:min(100%,430px); min-height:74%; background:var(--panel); color:var(--paper); padding:clamp(22px,2.5vw,42px); display:grid; align-content:space-between; box-shadow:12px 12px 0 var(--ink); }
+      .cover-card .label { color:var(--soft); font:700 10px/1 Arial,sans-serif; letter-spacing:.1em; }.cover-card strong { font-size:clamp(42px,5vw,75px); letter-spacing:-.09em; line-height:.8; }.cover-card strong span { color:var(--red); }.cover-card p { font-size:clamp(12px,1vw,16px); line-height:1.4; max-width:23ch; color:#d6d7dc; }
+      .cover-foot { display:flex; justify-content:space-between; align-items:end; gap:20px; }.cover-foot .lead { font-size:clamp(11px,.9vw,14px); }.page-mark { color:var(--red); font-size:clamp(27px,3vw,48px); letter-spacing:-.08em; font-weight:900; }
+
+      .object-main { display:grid; grid-template-columns:.95fr 1.05fr; gap:clamp(28px,5vw,82px); align-items:center; }
+      .site-shot { margin:0; overflow:hidden; background:#fff; border:1px solid var(--line); box-shadow:8px 8px 0 var(--ink); }.site-shot img { display:block; width:100%; aspect-ratio:1.42; object-fit:cover; object-position:top; }.site-shot figcaption { padding:10px 12px; font:700 10px/1.2 Arial,sans-serif; letter-spacing:.07em; text-transform:uppercase; }
+      .object-copy { display:grid; align-content:center; gap:25px; }.object-copy h2 { max-width:8ch; }.announcement { padding:10px 12px; border-top:2px solid var(--ink); border-bottom:1px solid #eadcb5; background:#f2efe6; color:#4d4e52; font-size:clamp(11px,.95vw,15px); }.announcement b { color:var(--gold); margin-right:10px; }
+
+      .archive-main { display:grid; grid-template-columns:1.04fr .96fr; gap:clamp(24px,4.5vw,70px); min-height:0; }
+      .archive-list { display:grid; align-content:start; gap:0; border-top:2px solid var(--ink); }.archive-item { width:100%; padding:14px 0; display:grid; grid-template-columns:39px 1fr auto; align-items:center; gap:12px; border:0; border-bottom:1px solid var(--line); background:transparent; color:var(--ink); cursor:pointer; text-align:left; transition:padding .2s ease, color .2s ease; }.archive-item:hover, .archive-item.selected { padding-left:10px; color:var(--red); }.archive-item b { font-size:clamp(12px,1vw,16px); }.archive-item span { font:700 clamp(9px,.7vw,11px)/1 Arial,sans-serif; color:var(--soft); letter-spacing:.08em; text-transform:uppercase; }.archive-item i { font-style:normal; color:var(--blue); font-size:15px; }
+      .article-detail { border:1px solid var(--line); padding:clamp(22px,2.5vw,40px); display:grid; align-content:space-between; gap:25px; background:#fff; }.article-detail h3 { max-width:13ch; }.detail-meta { display:flex; flex-wrap:wrap; gap:8px; }.article-summary { color:#565b64; font-size:clamp(13px,1vw,16px); line-height:1.45; max-width:35ch; }.archive-pager { display:flex; gap:8px; }.archive-pager button { border:1px solid var(--ink); background:transparent; min-height:30px; padding:0 11px; color:var(--ink); cursor:pointer; font:700 10px/1 Arial,sans-serif; letter-spacing:.08em; }.archive-pager button:hover { background:var(--ink); color:var(--paper); }
+
+      .mechanism-main { display:grid; grid-template-columns:.8fr 1.2fr; gap:clamp(30px,5vw,76px); align-items:center; }.mechanism-number { font-size:clamp(155px,24vw,330px); font-weight:900; color:var(--red); letter-spacing:-.17em; line-height:.56; }.mechanism-list { display:grid; gap:0; }.mechanism { display:grid; grid-template-columns:42px 1fr; gap:18px; border-top:1px solid var(--line); padding:15px 0; }.mechanism b { color:var(--red); font-size:clamp(17px,1.4vw,23px); }.mechanism p { font-size:clamp(14px,1.16vw,18px); line-height:1.35; max-width:39ch; }.mechanism p strong { font-family:Georgia,"Songti SC",serif; font-size:1.25em; }
+
+      .comments-main { display:grid; grid-template-columns:1fr 1fr; gap:clamp(26px,5vw,80px); align-items:center; }.comments-intro { display:grid; gap:25px; }.comment-cards { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }.comment { min-height:145px; padding:18px; border:1px solid var(--line); background:#fff; text-align:left; cursor:pointer; display:grid; align-content:space-between; transition:transform .25s ease, background .25s ease, color .25s ease; }.comment:nth-child(3) { grid-column:span 2; min-height:110px; }.comment:hover, .comment.active { transform:translateY(-5px); background:var(--ink); color:var(--paper); }.comment p { font-family:Georgia,"Songti SC",serif; font-size:clamp(16px,1.5vw,24px); letter-spacing:-.035em; line-height:1.05; }.comment small { color:var(--red); font:700 9px/1 Arial,sans-serif; letter-spacing:.09em; text-transform:uppercase; }
+
+      .bridge-main { display:grid; grid-template-columns:1.04fr .96fr; align-items:center; gap:clamp(28px,5vw,75px); }.bridge-copy { display:grid; gap:25px; }.statement-card { background:var(--ink); color:var(--paper); min-height:68%; padding:clamp(26px,3vw,50px); display:grid; align-content:space-between; }.statement-card p { font-family:Georgia,"Songti SC",serif; font-size:clamp(28px,3.5vw,56px); letter-spacing:-.07em; line-height:.9; max-width:9ch; }.statement-card b { font:700 10px/1 Arial,sans-serif; letter-spacing:.1em; color:var(--red); }
+
+      .timeline-main { display:grid; grid-template-columns:repeat(3,1fr); align-items:end; gap:0; }.time-item { min-height:290px; display:grid; align-content:start; gap:14px; padding:26px 19px 0; border-top:4px solid var(--ink); position:relative; }.time-item::before { content:""; width:13px; height:13px; border-radius:50%; background:var(--red); position:absolute; left:0; top:-9px; }.time-item:nth-child(2) { border-color:var(--red); }.time-item b { color:var(--red); font-size:clamp(26px,3vw,48px); letter-spacing:-.08em; }.time-item h3 { font-size:clamp(18px,1.8vw,28px); }.time-item p { color:#555a63; font-size:clamp(12px,1vw,16px); line-height:1.4; max-width:25ch; }
+
+      .questions-main { display:grid; grid-template-columns:.95fr 1.05fr; gap:clamp(28px,5vw,80px); align-items:center; }.question-list { display:grid; gap:12px; }.question { padding:24px 0 24px 20px; border-left:4px solid var(--red); border-bottom:1px solid var(--line); }.question b { font-family:Georgia,"Songti SC",serif; font-size:clamp(25px,2.7vw,42px); line-height:.95; letter-spacing:-.06em; }.question p { margin-top:11px; max-width:35ch; font-size:clamp(12px,1vw,16px); line-height:1.4; color:#565b64; }
+
+      .method-main { display:grid; grid-template-columns:.76fr 1.24fr; align-items:center; gap:clamp(28px,5vw,76px); }.method-card { background:var(--panel); color:var(--paper); min-height:68%; padding:clamp(23px,2.6vw,42px); display:grid; align-content:space-between; }.method-card b { color:var(--red); font-size:clamp(58px,8vw,130px); letter-spacing:-.1em; line-height:.7; }.method-card p { color:#cdd0d8; max-width:16ch; font-size:clamp(12px,1vw,16px); line-height:1.4; }.method-copy { display:grid; gap:25px; }.method-facts { display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-top:1px solid var(--line); }.fact { padding:17px 10px 0 0; border-right:1px solid var(--line); }.fact + .fact { padding-left:14px; }.fact b { font-size:clamp(28px,3.4vw,52px); letter-spacing:-.08em; }.fact span { color:var(--soft); font:700 10px/1.25 Arial,sans-serif; letter-spacing:.07em; text-transform:uppercase; }
+
+      .closing-main { display:grid; grid-template-columns:1.1fr .9fr; gap:clamp(28px,5vw,78px); align-items:center; }.closing-copy { display:grid; gap:25px; }.closing-copy h2 { max-width:9ch; }.closing-copy h2 em { color:var(--red); font-style:normal; }.end-card { min-height:68%; background:var(--red); color:var(--paper); padding:clamp(25px,3vw,48px); display:grid; align-content:space-between; }.end-card p { font-family:Georgia,"Songti SC",serif; font-size:clamp(25px,3vw,48px); letter-spacing:-.06em; line-height:.95; max-width:9ch; }.end-card small { font:700 10px/1 Arial,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
+
+      .controls { position:absolute; z-index:10; right:clamp(18px,2.4vw,38px); bottom:clamp(18px,2.4vw,34px); display:flex; align-items:center; gap:7px; }.controls button { height:31px; padding:0 10px; border:1px solid var(--line); background:var(--paper); color:var(--ink); cursor:pointer; font:700 10px/1 Arial,sans-serif; letter-spacing:.08em; }.controls button:hover { background:var(--ink); border-color:var(--ink); color:var(--paper); }.controls .count { color:var(--soft); font:700 10px/1 Arial,sans-serif; letter-spacing:.08em; margin-right:7px; }
+      .index-panel { position:absolute; z-index:30; inset:0; display:none; padding:clamp(28px,4vw,66px); background:var(--ink); color:var(--paper); }.index-panel.open { display:grid; grid-template-rows:auto 1fr; gap:36px; }.index-head { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #585961; padding-bottom:15px; }.index-head strong { font-size:clamp(29px,4vw,58px); letter-spacing:-.08em; }.index-head button { border:1px solid #73747d; background:transparent; color:var(--paper); min-height:30px; padding:0 11px; cursor:pointer; font:700 10px/1 Arial,sans-serif; letter-spacing:.08em; }.index-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px 24px; align-content:center; }.index-item { text-align:left; border:0; border-top:1px solid #585961; background:transparent; color:var(--paper); padding:13px 0; cursor:pointer; }.index-item:hover { color:var(--red); }.index-item span { display:block; color:var(--red); font:700 9px/1 Arial,sans-serif; letter-spacing:.1em; margin-bottom:8px; }.index-item strong { font-size:clamp(15px,1.6vw,24px); letter-spacing:-.05em; }
+
+      @media (max-width:760px) { body { overflow:auto; }.app { display:block; padding:0; }.deck { width:100%; max-height:none; min-height:100dvh; aspect-ratio:auto; }.slide { padding:23px 22px 67px; gap:22px; }.cover-main,.object-main,.archive-main,.mechanism-main,.comments-main,.bridge-main,.questions-main,.method-main,.closing-main { grid-template-columns:1fr; }.cover-card { justify-self:stretch; min-height:25dvh; }.object-main { align-content:start; }.site-shot img { aspect-ratio:1.6; }.archive-main { overflow:auto; }.article-detail { min-height:250px; }.mechanism-number { display:none; }.comment-cards { min-height:44dvh; }.timeline-main { grid-template-columns:1fr; overflow:auto; }.time-item { min-height:0; padding-top:17px; }.method-card { min-height:24dvh; }.index-grid { grid-template-columns:1fr; overflow:auto; align-content:start; }.cover-foot { padding-bottom:8px; }.controls { left:22px; right:auto; }.controls button:nth-of-type(1) { display:none; } }
+      @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition-duration:.01ms!important; } }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <section class="deck" aria-label="Interactive thesis presentation">
+        <article class="slide cover active" data-title="Opening">
+          <header class="slide-header"><div class="masthead">S.H.*.T <small>Sciences<br />Humanities<br />Information<br />Technology</small></div><span class="folio">THESIS PRESENTATION</span></header>
+          <div class="cover-main"><div class="cover-copy"><p class="eyebrow">A study of academic parody</p><h1 class="cover-title">When is a joke <em>serious</em> enough?</h1><p class="lead">S.H.I.T. Journal, shared feeling, and the public life of academic language on Chinese social media.</p></div><aside class="cover-card"><span class="label">VOL. 1 / ISSUE 01</span><strong>S.H.<span>*</span>.T</strong><p>A journal that performs academic authority precisely enough to make it strange.</p><span class="label">15 MINUTE THESIS TALK</span></aside></div>
+          <footer class="cover-foot"><p class="lead">Use the arrow keys, controls, or index to move through the talk.</p><strong class="page-mark">01</strong></footer>
+        </article>
+
+        <article class="slide" data-title="The object">
+          <header class="slide-header"><div class="masthead">S.H.*.T <small>Sciences Humanities<br />Information Technology</small></div><span class="folio">THE OBJECT</span></header>
+          <div class="object-main"><figure class="site-shot"><img src="assets/site-home.png" alt="S.H.I.T. Journal website homepage screenshot" /><figcaption>Website language: editorial hierarchy, issue labels, public notices, serious display type.</figcaption></figure><div class="object-copy"><p class="eyebrow">It looks official first</p><h2>Academic form. Absurd subject.</h2><p class="lead">Title, abstract, keywords, literature review, references, DOI. The parody works because its scholarly formatting is disciplined, not casual.</p><div class="announcement"><b>CALL FOR PAPERS</b> A joke journal was treated as a real platform problem.</div></div></div>
+          <div class="rule-title">EDITORIAL <span>/ 社论</span><small>VOL 1. ISSUE 1</small></div>
+        </article>
+
+        <article class="slide" data-title="Selected article titles">
+          <header class="slide-header"><div class="masthead">S.H.*.T <small>ARTICLE<br />ARCHIVE</small></div><span class="folio">CLICK TO EXPLORE</span></header>
+          <div class="archive-main"><div><div class="rule-title">SELECTED PAPERS <small id="archive-count">01-06 / 14</small></div><div class="archive-list" id="archive-list"></div><div class="archive-pager"><button type="button" id="archive-prev">PREV</button><button type="button" id="archive-next">NEXT</button></div></div><aside class="article-detail"><div><p class="eyebrow">Original title, translated</p><h3 id="article-title">Loading article title</h3></div><div><div class="detail-meta"><span class="tag gold">Featured</span><span class="tag blue" id="article-issue">APR 2026 / ISSUE 01</span><span class="tag" id="article-field">SOCIOLOGY</span></div><p class="article-summary" id="article-note"></p></div></aside></div>
+          <p class="lead">The titles make the central tension immediately visible: the structure of an academic paper is retained, while everyday emotional pressure becomes its subject.</p>
+        </article>
+
+        <article class="slide" data-title="What humor does">
+          <header class="slide-header"><div class="masthead">S.H.*.T <small>HUMOUR<br />AS METHOD</small></div><span class="folio">FROM PRIVATE TO PUBLIC</span></header>
+          <div class="mechanism-main"><div class="mechanism-number">3</div><div><p class="eyebrow">A sequence of effects</p><h2>Humor makes pressure speakable.</h2><div class="mechanism-list"><div class="mechanism"><b>01</b><p><strong>Laugh together.</strong><br />The joke carries a heavy feeling without requiring a heavy tone.</p></div><div class="mechanism"><b>02</b><p><strong>Recognize yourself.</strong><br />“This is my life” turns individual academic pressure into a visible social pattern.</p></div><div class="mechanism"><b>03</b><p><strong>Debate authority.</strong><br />Value, legitimacy, and platform restriction become part of the conversation.</p></div></div></div></div>
+          <div></div>
+        </article>
+
+        <article class="slide" data-title="The comment section">
+          <header class="slide-header"><div class="masthead">S.H.*.T <small>COMMENT<br />SECTION</small></div><span class="folio">CLICK A RESPONSE</span></header>
+          <div class="comments-main"><div class="comments-intro"><p class="eyebrow">The research starts here</p><h2>Not just “funny.”</h2><p class="lead">The key evidence is not the original video alone. It is what people do together underneath it: recognition, imitation, defense, and debate.</p><p class="rating">? ? ? ? ? <small>4.91 / 5 (725)</small></p></div><div class="comment-cards"><button class="comment active" type="button"><p>“This is too real.”</p><small>Recognition</small></button><button class="comment" type="button"><p>“How can it accept such high-level papers?”</p><small>Performing the joke</small></button><button class="comment" type="button"><p>“Maybe these papers are saying: I see your pain.”</p><small>Shared feeling</small></button></div></div>
+          <div></div>
+        </article>
+
+        <article class="slide" data-title="A strange connection">
+          <header class="slide-header"><div class="masthead">S.H.*.T <small>HISTORICAL<br />CONNECTION</small></div><span class="folio">1915 ↔ 2026</span></header>
+          <div class="bridge-main"><div class="bridge-copy"><p class="eyebrow">Then the story changes</p><h2>Why does a joke journal recall 1915?</h2><p class="lead">Some users invoke <span class="serif">New Youth</span> and the New Culture Movement. This is not proof that the two are equivalent. It shows how users construct meaning through history.</p></div><aside class="statement-card"><b>THE QUESTION</b><p>Who gets to speak in the language of knowledge?</p><span class="smallcaps">A historical comparison made by users</span></aside></div>
+          <div></div>
+        </article>
+
+        <article class="slide" data-title="New Youth">
+          <header class="slide-header"><div class="masthead">S.H.*.T <small>NEW YOUTH<br />AS A FRAME</small></div><span class="folio">A CAREFUL COMPARISON</span></header>
+          <div><p class="eyebrow">Same question. Different media.</p><h2>How knowledge enters public life.</h2></div>
+          <div class="timeline-main"><div class="time-item"><b>1915</b><h3>New Youth</h3><p>Vernacular writing, criticism, science, and democracy expand the terms of public argument.</p></div><div class="time-item"><b>THEN</b><h3>More people can speak.</h3><p>Knowledge moves beyond narrow formal language and invites more people into discussion.</p></div><div class="time-item"><b>NOW</b><h3>Authority becomes playable.</h3><p>A parody journal lets users handle academic authority through humor, imitation, and debate.</p></div></div>
+        </article>
+
+        <article class="slide" data-title="Research questions">
+          <header class="slide-header"><div class="masthead">S.H.*.T <small>RESEARCH<br />QUESTIONS</small></div><span class="folio">THE THESIS ASKS</span></header>
+          <div class="questions-main"><div><p class="eyebrow">Two questions</p><h2>What are users doing when they joke?</h2></div><div class="question-list"><div class="question"><b>How does humor create a “we”?</b><p>How do people turn recognition, laughter, and academic pressure into a shared public feeling?</p></div><div class="question"><b>How is New Culture used?</b><p>How do users mobilise a historical frame to explain the journal’s value, authority, and legitimacy?</p></div></div></div>
+          <div></div>
+        </article>
+
+        <article class="slide" data-title="Method">
+          <header class="slide-header"><div class="masthead">S.H.*.T <small>EARLY-STAGE<br />RESEARCH</small></div><span class="folio">WHERE I AM NOW</span></header>
+          <div class="method-main"><aside class="method-card"><b>?</b><p>I do not have final answers yet. I have patterns that keep returning.</p><span class="smallcaps">CLOSE READING + NVIVO</span></aside><div class="method-copy"><p class="eyebrow">Patterns, not conclusions</p><h2>Manual collection. Close reading.</h2><p class="lead">I collect public videos and comments, read them carefully, and use NVivo to organise recurring ways of talking about restriction, value, and shared feeling.</p><div class="method-facts"><div class="fact"><b>≈ 60</b><br /><span>Public videos</span></div><div class="fact"><b>600+</b><br /><span>Comments</span></div><div class="fact"><b>NVivo</b><br /><span>Coding support</span></div></div></div></div>
+          <div></div>
+        </article>
+
+        <article class="slide" data-title="Closing">
+          <header class="slide-header"><div class="masthead">S.H.*.T <small>THESIS<br />CLOSING</small></div><span class="folio">THANK YOU</span></header>
+          <div class="closing-main"><div class="closing-copy"><p class="eyebrow">Return to the name</p><h2>When people laugh together, they also tell us what feels <em>serious.</em></h2><p class="lead">They reveal how they feel, who they feel close to, and what they think about those who decide what counts as knowledge.</p></div><aside class="end-card"><small>THE TASK</small><p>Listen carefully.<br />And, in the thesis, laugh a little less.</p><small>THANK YOU</small></aside></div>
+          <div></div>
+        </article>
+
+        <nav class="controls" aria-label="Presentation controls"><span class="count">01 / 10</span><button type="button" data-action="index">INDEX</button><button type="button" data-action="previous">PREV</button><button type="button" data-action="next">NEXT</button></nav>
+        <aside class="index-panel" aria-label="Presentation index" aria-hidden="true"><div class="index-head"><strong>INDEX</strong><button type="button" id="close-index">CLOSE</button></div><div class="index-grid" id="index-grid"></div></aside>
+      </section>
+    </main>
+    <script>
+      (() => {
+        const slides = [...document.querySelectorAll('.slide')];
+        const count = document.querySelector('.count');
+        const indexPanel = document.querySelector('.index-panel');
+        const indexGrid = document.querySelector('#index-grid');
+        let current = 0;
+        function goTo(next) { const target = Math.max(0, Math.min(slides.length - 1, next)); if (target === current) return; slides[current].classList.remove('active'); slides[current].classList.toggle('exit', target > current); current = target; slides[current].classList.add('active'); count.textContent = `${String(current + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`; }
+        function closeIndex() { indexPanel.classList.remove('open'); indexPanel.setAttribute('aria-hidden', 'true'); }
+        slides.forEach((slide, index) => { const button = document.createElement('button'); button.type = 'button'; button.className = 'index-item'; button.innerHTML = `<span>${String(index + 1).padStart(2, '0')}</span><strong>${slide.dataset.title}</strong>`; button.addEventListener('click', () => { goTo(index); closeIndex(); }); indexGrid.append(button); });
+        document.querySelector('[data-action="next"]').addEventListener('click', () => goTo(current + 1)); document.querySelector('[data-action="previous"]').addEventListener('click', () => goTo(current - 1)); document.querySelector('[data-action="index"]').addEventListener('click', () => { indexPanel.classList.add('open'); indexPanel.setAttribute('aria-hidden', 'false'); document.querySelector('#close-index').focus(); }); document.querySelector('#close-index').addEventListener('click', closeIndex);
+        document.addEventListener('keydown', event => { if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') { event.preventDefault(); goTo(current + 1); } if (event.key === 'ArrowLeft' || event.key === 'PageUp') { event.preventDefault(); goTo(current - 1); } if (event.key === 'Home') { event.preventDefault(); goTo(0); } if (event.key === 'End') { event.preventDefault(); goTo(slides.length - 1); } if (event.key === 'Escape') closeIndex(); if (event.key.toLowerCase() === 'i') indexPanel.classList.contains('open') ? closeIndex() : document.querySelector('[data-action="index"]').click(); });
+        document.querySelectorAll('.comment').forEach(comment => comment.addEventListener('click', () => { document.querySelectorAll('.comment').forEach(item => item.classList.remove('active')); comment.classList.add('active'); }));
+        const articles = [
+          ['“I Raise You, Therefore I Love You, Therefore You Must Obey”: A Study of Absolute Control Through Hamster Rearing', 'MAY 2026 / ISSUE 03', 'SOCIOLOGY', 'A mock research title that turns domestic care into a total theory of authority.'],
+          ['You Are Still in This Relationship, but No Longer in This Relationship', 'MAY 2026 / ISSUE 02', 'EMOTIONAL MASTERY', 'A deliberately circular diagnosis of contemporary intimacy.'],
+          ['The “Celebrity” Phenomenon: Labelled Violence and Sincere Desacralisation in Contemporary Youth Sociality', 'MAY 2026 / ISSUE 02', 'INTERDISCIPLINARY', 'Social-media language becomes the object of a sober academic investigation.'],
+          ['The Blurred Zone Between Friendship and Love: Emotional Boundaries in Heterosexual Friendships', 'APR 2026 / ISSUE 04', 'EMOTIONAL MASTERY', 'A familiar uncertainty receives the formal vocabulary of a research field.'],
+          ['Happiness Phobia and the Modern Predicament of Love', 'APR 2026 / ISSUE 03', 'EMOTIONAL MASTERY', 'A short phrase becomes a substantial theoretical diagnosis.'],
+          ['Is It Her, or the Image of Her? A Psychological, Social and Emotional Analysis of Eleven Years of Secret Crushes', 'APR 2026 / ISSUE 03', 'EMOTIONAL MASTERY', 'The genre of the paper makes private longing sound rigorously researchable.'],
+          ['A Dialectical Study of Postgraduate Student Identity: When I Am Compressed into Q1 and Q2', 'APR 2026 / ISSUE 03', 'INTERDISCIPLINARY', 'A direct example of academic pressure being translated into comic academic language.'],
+          ['When Love Meets Silence: How Two Bossy People Reach the End of Happiness', 'APR 2026 / ISSUE 02', 'EMOTIONAL MASTERY', 'Relationship tension arrives as a polished academic problem statement.'],
+          ['Local Currency Inflation: How Much More Money Do East Asian Mothers Need to Burn?', 'APR 2026 / ISSUE 01', 'SOCIOLOGY', 'Family life adopts the rhetoric of currency and social structure.'],
+          ['A Structural Analysis of Family Emotional Predicaments in East Asian Households', 'APR 2026 / ISSUE 01', 'EMOTIONAL MASTERY', 'Everyday conflict is recast as a serious structural condition.'],
+          ['How to Stop Expecting Someone You Know Is Impossible', 'APR 2026 / ISSUE 01', 'EMOTIONAL MASTERY', 'An ordinary emotional question appears in the costume of academic expertise.'],
+          ['A Study of the 2026 Overlap Between Statutory Holidays and Weekends', 'APR 2026 / ISSUE 01', 'LAW', 'Bureaucratic language frames a collectively familiar frustration.'],
+          ['Does Hospital Entrance Reduce Human Intelligence? A Review of Contemporary Medical Contradictions', 'APR 2026 / ISSUE 01', 'MEDICINE', 'A punchline borrows the register of formal review literature.'],
+          ['Draft of the Local Government Organisation Act', 'APR 2026 / ISSUE 01', 'LAW', 'Even legislative drafting appears as a viable entry in the parody archive.']
+        ];
+        const pageSize = 6; let archivePage = 0; let chosen = 0; const list = document.querySelector('#archive-list'); const articleTitle = document.querySelector('#article-title'); const articleIssue = document.querySelector('#article-issue'); const articleField = document.querySelector('#article-field'); const articleNote = document.querySelector('#article-note'); const archiveCount = document.querySelector('#archive-count');
+        function selectArticle(index) { chosen = index; const article = articles[index]; articleTitle.textContent = article[0]; articleIssue.textContent = article[1]; articleField.textContent = article[2]; articleNote.textContent = article[3]; renderArchive(); }
+        function renderArchive() { const start = archivePage * pageSize; const visible = articles.slice(start, start + pageSize); list.innerHTML = ''; visible.forEach((article, offset) => { const index = start + offset; const button = document.createElement('button'); button.type = 'button'; button.className = `archive-item${chosen === index ? ' selected' : ''}`; button.innerHTML = `<span>${String(index + 1).padStart(2, '0')}</span><b>${article[0]}</b><i>?</i>`; button.addEventListener('click', () => selectArticle(index)); list.append(button); }); archiveCount.textContent = `${String(start + 1).padStart(2, '0')}-${String(Math.min(start + pageSize, articles.length)).padStart(2, '0')} / ${articles.length}`; }
+        document.querySelector('#archive-prev').addEventListener('click', () => { archivePage = (archivePage - 1 + Math.ceil(articles.length / pageSize)) % Math.ceil(articles.length / pageSize); chosen = archivePage * pageSize; selectArticle(chosen); }); document.querySelector('#archive-next').addEventListener('click', () => { archivePage = (archivePage + 1) % Math.ceil(articles.length / pageSize); chosen = archivePage * pageSize; selectArticle(chosen); }); selectArticle(0);
+      })();
+    </script>
+  </body>
+</html>
